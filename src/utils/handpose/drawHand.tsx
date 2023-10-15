@@ -1,6 +1,5 @@
-import * as handpose from "@tensorflow-models/handpose";
+import type * as handdetection from "@tensorflow-models/hand-pose-detection";
 
-// Points for fingers
 const fingerJoints = {
   thumb: [0, 1, 2, 3, 4],
   indexFinger: [0, 5, 6, 7, 8],
@@ -9,81 +8,47 @@ const fingerJoints = {
   pinky: [0, 17, 18, 19, 20],
 };
 
-// Infinity Gauntlet Style
-const style = {
-  0: { color: "yellow", size: 15 },
-  1: { color: "red", size: 6 },
-  2: { color: "green", size: 10 },
-  3: { color: "red", size: 6 },
-  4: { color: "red", size: 6 },
-  5: { color: "purple", size: 10 },
-  6: { color: "red", size: 6 },
-  7: { color: "red", size: 6 },
-  8: { color: "red", size: 6 },
-  9: { color: "blue", size: 10 },
-  10: { color: "red", size: 6 },
-  11: { color: "red", size: 6 },
-  12: { color: "red", size: 6 },
-  13: { color: "red", size: 10 },
-  14: { color: "red", size: 6 },
-  15: { color: "red", size: 6 },
-  16: { color: "red", size: 6 },
-  17: { color: "orange", size: 10 },
-  18: { color: "red", size: 6 },
-  19: { color: "red", size: 6 },
-  20: { color: "red", size: 6 },
-};
-
-// Drawing function
-export const drawHand = (
-  predictions: handpose.AnnotatedPrediction[],
+export const drawHand2 = (
+  predictions: handdetection.Hand[],
   ctx: CanvasRenderingContext2D,
 ) => {
   if (predictions.length > 0) {
-    console.log(predictions);
     predictions.forEach((prediction) => {
-      const landmarks = prediction.landmarks;
+      const { keypoints } = prediction;
 
-      // Loop through fingers
-      for (let j = 0; j < Object.keys(fingerJoints).length; j++) {
-        let finger = Object.keys(fingerJoints)[j];
-        //  Loop through pairs of joints
-        for (let k = 0; k < fingerJoints[finger].length - 1; k++) {
+      // draw tendons
+
+      Object.keys(fingerJoints).forEach((finger) => {
+        const fingerIndex = fingerJoints[finger as keyof typeof fingerJoints];
+        for (let k = 0; k < fingerIndex.length - 1; k++) {
           // Get pairs of joints
-          const firstJointIndex = fingerJoints[finger][k];
-          const secondJointIndex = fingerJoints[finger][k + 1];
+          const firstJointIndex = fingerIndex[k]!;
+          const secondJointIndex = fingerIndex[k + 1]!;
 
           // Draw path
           ctx.beginPath();
           ctx.moveTo(
-            landmarks[firstJointIndex][0],
-            landmarks[firstJointIndex][1],
+            keypoints[firstJointIndex]!.x,
+            keypoints[firstJointIndex]!.y,
           );
           ctx.lineTo(
-            landmarks[secondJointIndex][0],
-            landmarks[secondJointIndex][1],
+            keypoints[secondJointIndex]!.x,
+            keypoints[secondJointIndex]!.y,
           );
           ctx.strokeStyle = "plum";
           ctx.lineWidth = 4;
           ctx.stroke();
         }
-      }
+      });
 
-      // Loop through landmarks and draw em
-      for (let i = 0; i < landmarks.length; i++) {
-        const point = {
-          x: landmarks[i]?.[0] ?? 0,
-          y: landmarks[i]?.[1] ?? 0,
-        };
-
-        // Start drawing
+      //draw points
+      keypoints.forEach((keypoint) => {
         ctx.beginPath();
-        ctx.arc(point.x, point.y, style[i]["size"], 0, 3 * Math.PI);
+        ctx.arc(keypoint.x, keypoint.y, 5, 0, 3 * Math.PI);
 
-        // Set line color
-        ctx.fillStyle = style[i]["color"];
+        ctx.fillStyle = "black";
         ctx.fill();
-      }
+      });
     });
   }
 };

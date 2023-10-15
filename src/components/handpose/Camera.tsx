@@ -5,7 +5,7 @@ import "@tensorflow/tfjs-backend-webgl";
 import * as handdetection from "@tensorflow-models/hand-pose-detection";
 
 import Webcam from "react-webcam";
-import { drawHand2 } from "@/utils/handpose/drawHand2";
+import { drawHand2 } from "@/utils/handpose/drawHand";
 
 const Camera = () => {
   const detectorFps = 30;
