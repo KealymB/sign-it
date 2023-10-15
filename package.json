@@ -11,9 +11,15 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^0.3.2",
+    "@mediapipe/hands": "^0.4.1675469240",
     "@planetscale/database": "^1.11.0",
     "@t3-oss/env-nextjs": "^0.7.0",
     "@tanstack/react-query": "^4.32.6",
+    "@tensorflow-models/hand-pose-detection": "^2.0.1",
+    "@tensorflow-models/handpose": "^0.1.0",
+    "@tensorflow/tfjs-backend-webgl": "^4.12.0-rc.0",
+    "@tensorflow/tfjs-converter": "^4.12.0-rc.0",
+    "@tensorflow/tfjs-core": "^4.11.0",
     "@trpc/client": "^10.37.1",
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.37.1",
@@ -23,6 +29,7 @@
     "next-auth": "^4.23.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-webcam": "^7.1.1",
     "superjson": "^1.13.1",
     "zod": "^3.22.4"
   },
