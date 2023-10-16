@@ -1,6 +1,7 @@
 import type * as handdetection from "@tensorflow-models/hand-pose-detection";
 import React from "react";
-import { Canvas, type Color } from "@react-three/fiber";
+import { Canvas, useLoader, type Color } from "@react-three/fiber";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { Vector3 } from "three";
 
 type DrawHand3DProps = {
@@ -10,6 +11,15 @@ type DrawHand3DProps = {
 };
 
 export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
+  const HandModel = () => {
+    const gltf = useLoader(GLTFLoader, "./assets/hand/hand.gltf");
+    return (
+      <>
+        <primitive object={gltf.scene} scale={10} />
+      </>
+    );
+  };
+
   const Point = ({
     position,
     color = "orange",
@@ -42,11 +52,11 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
 
   return (
     <Canvas
+      orthographic
       camera={{
-        position: new Vector3(0, 0, 275),
+        position: new Vector3(0, 0, 2),
         rotation: [0, 0, 0],
-        zoom: 1,
-        fov: 1,
+        zoom: 100,
       }}
       style={{
         height: height,
@@ -57,9 +67,11 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
       <pointLight position={[10, 10, 10]} />
 
       <Point position={{ x: 0, y: 0, z: 0 }} />
-      <Point position={{ x: 640, y: 0, z: 0 }} />
-      <Point position={{ x: 0, y: 480, z: 0 }} />
-      <Point position={{ x: 640, y: 480, z: 0 }} />
+      <Point position={{ x: width, y: 0, z: 0 }} />
+      <Point position={{ x: 0, y: height, z: 0 }} />
+      <Point position={{ x: width, y: height, z: 0 }} />
+
+      <HandModel />
 
       {firstHand?.keypoints?.map((keypoint) => {
         return (

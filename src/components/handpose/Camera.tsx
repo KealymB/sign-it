@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import "@tensorflow/tfjs-backend-webgl";
 
 import * as handdetection from "@tensorflow-models/hand-pose-detection";
@@ -9,8 +9,13 @@ import { DrawHand3D } from "@/utils/handpose/drawHand3D";
 const Camera = () => {
   const detectorFps = 30;
   const videoRef = useRef<HTMLVideoElement>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
   const [model, setModel] = useState<handdetection.HandDetector>();
   const [predictions, setPredictions] = useState<handdetection.Hand[]>([]);
+  const [videoDimensions, setVideoDimensions] = useState({
+    height: 480,
+    width: 640,
+  });
 
   useEffect(() => {
     if (!model) {
@@ -22,6 +27,24 @@ const Camera = () => {
       runHandpose();
     }
   }, [model]);
+
+  const measureVideo = () => {
+    if (videoContainerRef.current) {
+      const height = videoContainerRef.current?.offsetHeight;
+      const width = videoContainerRef.current?.offsetWidth;
+
+      if (height && width) {
+        setVideoDimensions({
+          height,
+          width,
+        });
+        console.log("video dimensions", {
+          height,
+          width,
+        });
+      }
+    }
+  };
 
   const loadModel = async () => {
     const handPoseModel = await handdetection.createDetector(
@@ -54,8 +77,8 @@ const Camera = () => {
     if (typeof videoRef.current !== "undefined" && videoRef.current !== null) {
       const video = videoRef.current;
 
-      video.height = video.videoHeight;
-      video.width = video.videoWidth;
+      video.height = videoDimensions.height;
+      video.width = videoDimensions.width;
 
       if (video.height === 0 || video.width === 0) {
         return;
@@ -90,14 +113,30 @@ const Camera = () => {
           console.error("Error accessing webcam:", error);
         });
     }
+  }, [videoRef.current]);
+
+  useLayoutEffect(() => {
+    measureVideo();
+    window.addEventListener("resize", measureVideo);
+    return () => window.removeEventListener("resize", measureVideo);
   }, []);
 
   return (
     <div className="flex flex-1">
       <div className="absolute flex flex-1">
-        <DrawHand3D predictions={predictions} height={480} width={640} />
+        <DrawHand3D
+          predictions={predictions}
+          height={videoDimensions.height}
+          width={videoDimensions.width}
+        />
       </div>
-      <div className="flex flex-1">
+      <div
+        className="flex flex-1"
+        ref={videoContainerRef}
+        onResize={() => {
+          measureVideo();
+        }}
+      >
         <video ref={videoRef} autoPlay playsInline height={480} width={640} />
       </div>
     </div>
