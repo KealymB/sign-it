@@ -53,9 +53,9 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
         width: width,
       }}
     >
-      <gridHelper args={[10, 10, `white`, `gray`]} />
       <ambientLight />
       <pointLight position={[10, 10, 10]} />
+
       <Point position={{ x: 0, y: 0, z: 0 }} />
       <Point position={{ x: 640, y: 0, z: 0 }} />
       <Point position={{ x: 0, y: 480, z: 0 }} />
