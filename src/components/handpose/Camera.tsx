@@ -10,6 +10,7 @@ const Camera = () => {
   const detectorFps = 30;
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
+  const [isDetectorReady, setDetectorReady] = useState(false);
   const [model, setModel] = useState<handdetection.HandDetector>();
   const [predictions, setPredictions] = useState<handdetection.Hand[]>([]);
   const [videoDimensions, setVideoDimensions] = useState({
@@ -23,44 +24,52 @@ const Camera = () => {
         console.log(error);
       });
     }
-    if (model) {
-      runHandpose();
+  }, []);
+
+  useEffect(() => {
+    if (isDetectorReady && model) {
+      startDetector();
     }
-  }, [model]);
+  }, [model, isDetectorReady]);
+
+  useEffect(() => {
+    window.addEventListener("resize", measureVideo);
+    return () => {
+      window.removeEventListener("resize", measureVideo);
+    };
+  }, []);
 
   const measureVideo = () => {
     if (videoContainerRef.current) {
-      const height = videoContainerRef.current?.offsetHeight;
-      const width = videoContainerRef.current?.offsetWidth;
+      const height = videoContainerRef.current?.clientHeight;
+      const width = videoContainerRef.current?.clientWidth;
 
       if (height && width) {
         setVideoDimensions({
           height,
           width,
         });
-        console.log("video dimensions", {
-          height,
-          width,
-        });
+        console.log("video dimensions", height, width);
       }
     }
   };
 
   const loadModel = async () => {
+    console.log("loading model");
     const handPoseModel = await handdetection.createDetector(
       handdetection.SupportedModels.MediaPipeHands,
       {
         runtime: "tfjs",
         maxHands: 2,
-        modelType: "lite",
+        modelType: "full",
       },
     );
     setModel(handPoseModel);
-    console.log("Handpose model loaded.");
+    console.log("loaded model");
   };
 
-  const runHandpose = () => {
-    console.log("setup detector");
+  const startDetector = () => {
+    console.log("setting up detector");
 
     const detectInterval = async () => {
       await detectHands();
@@ -80,12 +89,16 @@ const Camera = () => {
       video.height = videoDimensions.height;
       video.width = videoDimensions.width;
 
-      if (video.height === 0 || video.width === 0) {
+      if (videoDimensions.height === 0 || videoDimensions.width === 0) {
         return;
       }
 
       //DETECT HAND
-      const hand = await model?.estimateHands(video);
+      const hand = await model?.estimateHands(video).catch((error) => {
+        console.log(error);
+      });
+      console.log("hand", model);
+
       if (hand) {
         setPredictions(hand);
       }
@@ -104,21 +117,21 @@ const Camera = () => {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
 
-            videoRef.current.play().catch((error) => {
-              console.error("Error playing video:", error);
-            });
+            videoRef.current
+              .play()
+              .then(() => {
+                measureVideo();
+                setDetectorReady(true);
+              })
+              .catch((error) => {
+                console.error("Error playing video:", error);
+              });
           }
         })
         .catch((error) => {
           console.error("Error accessing webcam:", error);
         });
     }
-  }, [videoRef.current]);
-
-  useLayoutEffect(() => {
-    measureVideo();
-    window.addEventListener("resize", measureVideo);
-    return () => window.removeEventListener("resize", measureVideo);
   }, []);
 
   return (
@@ -130,14 +143,14 @@ const Camera = () => {
           width={videoDimensions.width}
         />
       </div>
-      <div
-        className="flex flex-1"
-        ref={videoContainerRef}
-        onResize={() => {
-          measureVideo();
-        }}
-      >
-        <video ref={videoRef} autoPlay playsInline height={480} width={640} />
+      <div className="flex flex-1" ref={videoContainerRef}>
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          height={videoDimensions.height}
+          width={videoDimensions.width}
+        />
       </div>
     </div>
   );

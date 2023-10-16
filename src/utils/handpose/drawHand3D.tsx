@@ -11,11 +11,12 @@ type DrawHand3DProps = {
 };
 
 export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
-  const HandModel = () => {
+  const HandModel = (position: { x: number; y: number; z: number }) => {
     const gltf = useLoader(GLTFLoader, "./assets/hand/hand.gltf");
+
     return (
       <>
-        <primitive object={gltf.scene} scale={10} />
+        <primitive object={gltf.scene} scale={0.5} position={position} />
       </>
     );
   };
@@ -27,6 +28,7 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
     position: { x: number; y: number; z: number };
     color?: Color;
   }) => {
+    const scale = 1 / 100;
     const xOffset = width / 2;
     const yOffset = height / 2;
 
@@ -35,9 +37,9 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
         scale={0.03}
         position={
           new Vector3(
-            (position.x - xOffset) / 100,
-            -(position.y - yOffset) / 100,
-            position.z,
+            (position.x - xOffset) * scale,
+            -(position.y - yOffset) * scale,
+            position.z * scale,
           )
         }
       >
@@ -71,13 +73,11 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
       <Point position={{ x: 0, y: height, z: 0 }} />
       <Point position={{ x: width, y: height, z: 0 }} />
 
-      <HandModel />
-
       {firstHand?.keypoints?.map((keypoint) => {
         return (
           <Point
             key={keypoint.name + firstHand.handedness}
-            position={{ x: keypoint.x, y: keypoint.y, z: 0 }}
+            position={{ x: keypoint.x, y: keypoint.y, z: keypoint.z ?? 0 }}
             color="red"
           />
         );
@@ -86,7 +86,7 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
         return (
           <Point
             key={keypoint.name + secondHand.handedness}
-            position={{ x: keypoint.x, y: keypoint.y, z: 0 }}
+            position={{ x: keypoint.x, y: keypoint.y, z: keypoint.z ?? 0 }}
             color="blue"
           />
         );
