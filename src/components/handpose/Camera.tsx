@@ -97,7 +97,6 @@ const Camera = () => {
       const hand = await model?.estimateHands(video).catch((error) => {
         console.log(error);
       });
-      console.log("hand", model);
 
       if (hand) {
         setPredictions(hand);
