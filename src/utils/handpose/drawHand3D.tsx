@@ -32,7 +32,7 @@ export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
 
     return (
       <mesh
-        scale={0.1}
+        scale={0.03}
         position={
           new Vector3(
             (position.x - xOffset) / 100,
