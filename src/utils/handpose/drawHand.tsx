@@ -8,7 +8,7 @@ const fingerJoints = {
   pinky: [0, 17, 18, 19, 20],
 };
 
-export const drawHand2 = (
+export const drawHand = (
   predictions: handdetection.Hand[],
   ctx: CanvasRenderingContext2D,
 ) => {

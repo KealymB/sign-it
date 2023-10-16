@@ -4,14 +4,13 @@ import "@tensorflow/tfjs-backend-webgl";
 
 import * as handdetection from "@tensorflow-models/hand-pose-detection";
 
-import Webcam from "react-webcam";
-import { drawHand2 } from "@/utils/handpose/drawHand";
+import { DrawHand3D } from "@/utils/handpose/drawHand3D";
 
 const Camera = () => {
   const detectorFps = 30;
-  const webcamRef = useRef<Webcam>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [model, setModel] = useState<handdetection.HandDetector>();
+  const [predictions, setPredictions] = useState<handdetection.Hand[]>([]);
 
   useEffect(() => {
     if (!model) {
@@ -30,7 +29,7 @@ const Camera = () => {
       {
         runtime: "tfjs",
         maxHands: 2,
-        modelType: "full",
+        modelType: "lite",
       },
     );
     setModel(handPoseModel);
@@ -52,39 +51,55 @@ const Camera = () => {
   };
 
   const detectHands = async () => {
-    if (
-      typeof webcamRef.current !== "undefined" &&
-      typeof canvasRef.current !== "undefined" &&
-      canvasRef.current !== null &&
-      webcamRef.current?.video !== null &&
-      webcamRef.current?.video.readyState === 4
-    ) {
-      const video = webcamRef.current.video;
-      const videoWidth = webcamRef.current.video.videoWidth;
-      const videoHeight = webcamRef.current.video.videoHeight;
+    if (typeof videoRef.current !== "undefined" && videoRef.current !== null) {
+      const video = videoRef.current;
 
-      webcamRef.current.video.width = videoWidth;
-      webcamRef.current.video.height = videoHeight;
-      // setting canvas dimensions
-      canvasRef.current.width = videoWidth;
-      canvasRef.current.height = videoHeight;
+      video.height = video.videoHeight;
+      video.width = video.videoWidth;
+
+      if (video.height === 0 || video.width === 0) {
+        return;
+      }
 
       //DETECT HAND
       const hand = await model?.estimateHands(video);
-      const ctx = canvasRef.current.getContext("2d");
-
-      if (hand && ctx) {
-        drawHand2(hand, ctx);
+      if (hand) {
+        setPredictions(hand);
       }
     }
   };
 
+  useEffect(() => {
+    // Use navigator.mediaDevices to access the user's webcam
+    if (navigator.mediaDevices?.getUserMedia) {
+      const constraints = { video: true };
+
+      // Request access to the webcam
+      navigator.mediaDevices
+        .getUserMedia(constraints)
+        .then((stream) => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+
+            videoRef.current.play().catch((error) => {
+              console.error("Error playing video:", error);
+            });
+          }
+        })
+        .catch((error) => {
+          console.error("Error accessing webcam:", error);
+        });
+    }
+  }, []);
+
   return (
     <div className="flex flex-1">
-      <header className="relative flex-1">
-        <Webcam className="flex flex-1" ref={webcamRef} />
-        <canvas className="absolute left-0 top-0 flex flex-1" ref={canvasRef} />
-      </header>
+      <div className="absolute flex flex-1">
+        <DrawHand3D predictions={predictions} height={480} width={640} />
+      </div>
+      <div className="flex flex-1">
+        <video ref={videoRef} autoPlay playsInline height={480} width={640} />
+      </div>
     </div>
   );
 };

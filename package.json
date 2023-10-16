@@ -13,6 +13,7 @@
     "@auth/drizzle-adapter": "^0.3.2",
     "@mediapipe/hands": "^0.4.1675469240",
     "@planetscale/database": "^1.11.0",
+    "@react-three/fiber": "^8.14.5",
     "@t3-oss/env-nextjs": "^0.7.0",
     "@tanstack/react-query": "^4.32.6",
     "@tensorflow-models/hand-pose-detection": "^2.0.1",
@@ -24,6 +25,7 @@
     "@trpc/next": "^10.37.1",
     "@trpc/react-query": "^10.37.1",
     "@trpc/server": "^10.37.1",
+    "@types/three": "^0.157.0",
     "drizzle-orm": "^0.28.5",
     "next": "^13.5.4",
     "next-auth": "^4.23.0",
@@ -31,6 +33,7 @@
     "react-dom": "18.2.0",
     "react-webcam": "^7.1.1",
     "superjson": "^1.13.1",
+    "three": "^0.157.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {
