@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "@tensorflow/tfjs-backend-webgl";
 
 import * as handdetection from "@tensorflow-models/hand-pose-detection";
@@ -7,7 +7,7 @@ import * as handdetection from "@tensorflow-models/hand-pose-detection";
 import { DrawHand3D } from "@/utils/handpose/drawHand3D";
 
 const Camera = () => {
-  const detectorFps = 30;
+  const detectorFps = 20;
   const videoRef = useRef<HTMLVideoElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   const [isDetectorReady, setDetectorReady] = useState(false);

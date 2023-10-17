@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import type * as handdetection from "@tensorflow-models/hand-pose-detection";
 import React from "react";
-import { Canvas, useLoader, type Color } from "@react-three/fiber";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { Canvas, type Color } from "@react-three/fiber";
 import { Vector3 } from "three";
 
 type DrawHand3DProps = {
@@ -11,15 +11,30 @@ type DrawHand3DProps = {
 };
 
 export const DrawHand3D = ({ predictions, height, width }: DrawHand3DProps) => {
-  const HandModel = (position: { x: number; y: number; z: number }) => {
-    const gltf = useLoader(GLTFLoader, "./assets/hand/hand.gltf");
+  // const handModel = useLoader(GLTFLoader, "/assets/hand/hand.gltf");
 
-    return (
-      <>
-        <primitive object={gltf.scene} scale={0.5} position={position} />
-      </>
-    );
-  };
+  // const HandModel = ({
+  //   position,
+  // }: {
+  //   position: { x: number; y: number; z: number };
+  // }) => {
+  //   if (!handModel?.nodes?.Sketchfab_Scene) {
+  //     console.log("no hand model");
+  //     return <></>;
+  //   }
+
+  //   return (
+  //     <group dispose={null}>
+  //       <mesh
+  //         castShadow
+  //         receiveShadow
+  //         geometry={handModel?.nodes?.Sketchfab_Scene?.geometries}
+  //         material={handModel.nodes.Sketchfab_Scene.materials}
+  //         position={[0, 0.189, -0.043]}
+  //       />
+  //     </group>
+  //   );
+  // };
 
   const Point = ({
     position,
