@@ -6,6 +6,7 @@
     "keypoint",
     "keypoints",
     "mediapipe",
-    "tfjs"
+    "tfjs",
+    "toastify"
   ]
 }
