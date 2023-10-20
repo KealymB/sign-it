@@ -1,23 +1,25 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Canvas, type Color } from "@react-three/fiber";
 import { Vector3 } from "three";
 
 import useDetector from "@/hooks/useDetector";
 
 const Visualizer3D = () => {
-  const { predictions, videoDimensions } = useDetector();
+  const { predictions, videoDimensions, detectorState } = useDetector();
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [cameraZPosition, setCameraZPosition] = useState<number>(0);
 
-  if (!videoDimensions) {
-    return <></>;
-  }
-
+  //TODO: replace with more efficient method
   const leftHand = predictions?.find((prediction) => {
     return prediction.handedness === "Left";
   });
   const rightHand = predictions?.find((prediction) => {
     return prediction.handedness === "Right";
   });
+
+  useEffect(() => {
+    setCameraZPosition(videoDimensions.width / 2 / 1.02041);
+  }, [videoDimensions]);
 
   const Sphere = ({
     position,
@@ -47,11 +49,15 @@ const Visualizer3D = () => {
     );
   };
 
+  if (detectorState != "running") {
+    return <></>;
+  }
+
   return (
     <Canvas
-      orthographic
+      ref={canvasRef}
       camera={{
-        position: new Vector3(0, 0, 2),
+        position: new Vector3(0, 0, cameraZPosition),
         rotation: [0, 0, 0],
         zoom: 100,
       }}
@@ -61,18 +67,6 @@ const Visualizer3D = () => {
       }}
     >
       <ambientLight />
-      <pointLight position={[10, 10, 10]} />
-
-      <Sphere position={{ x: 0, y: 0, z: 0 }} />
-      <Sphere position={{ x: videoDimensions.width, y: 0, z: 0 }} />
-      <Sphere position={{ x: 0, y: videoDimensions.height, z: 0 }} />
-      <Sphere
-        position={{
-          x: videoDimensions.width,
-          y: videoDimensions.height,
-          z: 0,
-        }}
-      />
 
       {leftHand?.keypoints?.map((keypoint) => {
         return (

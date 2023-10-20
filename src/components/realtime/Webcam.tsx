@@ -35,10 +35,14 @@ const Webcam = () => {
             videoRef.current
               .play()
               .then(() => {
-                if (!measureVideo()) {
+                const videoDimensions = measureVideo();
+                if (!videoDimensions) {
                   throw new Error("Unable to read video dimensions");
                 }
-
+                updateVideoDimensions({
+                  height: videoDimensions.height,
+                  width: videoDimensions.width,
+                });
                 updateVideoState("ready");
               })
               .catch((error) => {
@@ -61,11 +65,6 @@ const Webcam = () => {
       const width = videoContainerRef.current?.clientWidth;
 
       if (height && width) {
-        updateVideoDimensions({
-          height,
-          width,
-        });
-
         console.info("video dimensions:", height, width);
 
         return {
@@ -77,7 +76,10 @@ const Webcam = () => {
   };
 
   return (
-    <div className="flex flex-1" ref={videoContainerRef}>
+    <div
+      className="flex flex-1 overflow-hidden rounded-lg shadow-lg"
+      ref={videoContainerRef}
+    >
       <video ref={videoRef} autoPlay playsInline height={450} width={500} />
     </div>
   );

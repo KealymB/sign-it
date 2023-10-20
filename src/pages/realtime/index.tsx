@@ -1,14 +1,14 @@
 import Head from "next/head";
 
-import Webcam from "@/components/handpose/Webcam";
-import Visualizer3D from "@/components/handpose/Visualizer3D";
+import Webcam from "@/components/realtime/Webcam";
+import Visualizer3D from "@/components/realtime/Visualizer3D";
 import { DetectorProvider } from "@/hooks/DetectorProvider";
 
 export default function RTDetection() {
   return (
     <>
       <Head>
-        <title>SignIt | RT Handpose</title>
+        <title>SignIt | Realtime</title>
         <meta name="description" content="Sign language training app" />
         <link rel="icon" href="/favicon.ico" />
       </Head>

@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import { type VideoDimensions } from "@/types/handpose";
 import * as handdetection from "@tensorflow-models/hand-pose-detection";
+import Loader from "@/components/realtime/Loader";
 
 type DetectorState = "pending" | "loading" | "ready" | "running" | "error";
 
@@ -15,7 +16,7 @@ type DetectorContextType = {
   modelState: DetectorState;
   detectorState: DetectorState;
   predictions: handdetection.Hand[] | undefined;
-  videoDimensions: VideoDimensions | undefined;
+  videoDimensions: VideoDimensions;
   video: HTMLVideoElement | undefined;
   model: handdetection.HandDetector | undefined;
   updateVideoState: (state: DetectorState) => void;
@@ -37,14 +38,21 @@ type DetectorProviderProps = {
 
 export function DetectorProvider({ children }: DetectorProviderProps) {
   const detectorFps = 20;
+  const initialVideoDimensions: VideoDimensions = {
+    height: 400,
+    width: 500,
+  };
 
   const [videoState, setVideoState] = useState<DetectorState>("pending");
   const [modelState, setModelState] = useState<DetectorState>("pending");
   const [detectorState, setDetectorState] = useState<DetectorState>("ready");
   const [predictions, setPredictions] = useState<handdetection.Hand[]>();
-  const [videoDimensions, setVideoDimensions] = useState<VideoDimensions>();
+  const [videoDimensions, setVideoDimensions] = useState<VideoDimensions>(
+    initialVideoDimensions,
+  );
   const [video, setVideo] = useState<HTMLVideoElement>();
   const [model, setModel] = useState<handdetection.HandDetector>();
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const updateVideoState = (newState: DetectorState) => setVideoState(newState);
   const updateModelState = (newState: DetectorState) => setModelState(newState);
@@ -52,7 +60,7 @@ export function DetectorProvider({ children }: DetectorProviderProps) {
     setDetectorState(newState);
   const updatePredictions = (newPredictions: handdetection.Hand[]) =>
     setPredictions(newPredictions);
-  const updateVideoDimensions = (dimensions: VideoDimensions | undefined) =>
+  const updateVideoDimensions = (dimensions: VideoDimensions) =>
     setVideoDimensions(dimensions);
   const updateVideo = (newVideo: HTMLVideoElement | undefined) =>
     setVideo(newVideo);
@@ -143,6 +151,14 @@ export function DetectorProvider({ children }: DetectorProviderProps) {
     }
   }, [videoState, modelState, detectorState, startDetector]);
 
+  useEffect(() => {
+    if (detectorState !== "running") {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+    }
+  }, [videoState, modelState, detectorState, isLoading]);
+
   return (
     <DetectorContext.Provider
       value={{
@@ -162,7 +178,8 @@ export function DetectorProvider({ children }: DetectorProviderProps) {
         updateModel,
       }}
     >
-      {children}
+      <Loader isLoading={isLoading} />
+      <div style={{ display: isLoading ? "hidden" : "flex" }}>{children}</div>
     </DetectorContext.Provider>
   );
 }
