@@ -7,6 +7,9 @@ export default function Home() {
       <Head>
         <title>SignIt | Home</title>
         <meta name="description" content="Sign language training app" />
+        <meta name="theme-color" content="#2e026d" />
+        <meta name="msapplication-navbutton-color" content="#2e026d" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="#2e026d" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className=" flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">

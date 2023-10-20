@@ -12,16 +12,32 @@ const Webcam = () => {
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    window.addEventListener("resize", measureVideo);
+    if (videoRef?.current) {
+      videoRef.current.addEventListener("loadedmetadata", measureVideo);
+    }
+
     return () => {
-      window.removeEventListener("resize", measureVideo);
+      window.removeEventListener("loadedmetadata", measureVideo);
     };
-  }, []);
+  }, [videoRef.current]);
+
+  const measureVideo = () => {
+    console.log("measuring video");
+
+    if (videoRef.current?.offsetHeight && videoRef.current?.offsetWidth) {
+      updateVideoDimensions({
+        height: videoRef.current.offsetHeight,
+        width: videoRef.current.offsetWidth,
+      });
+
+      updateVideoState("ready");
+    }
+  };
 
   useEffect(() => {
     // Use navigator.mediaDevices to access the user's webcam
     if (navigator.mediaDevices?.getUserMedia) {
-      const constraints = { video: true };
+      const constraints: MediaStreamConstraints = { video: true, audio: false };
 
       updateVideoState("loading");
 
@@ -32,48 +48,20 @@ const Webcam = () => {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
 
-            videoRef.current
-              .play()
-              .then(() => {
-                const videoDimensions = measureVideo();
-                if (!videoDimensions) {
-                  throw new Error("Unable to read video dimensions");
-                }
-                updateVideoDimensions({
-                  height: videoDimensions.height,
-                  width: videoDimensions.width,
-                });
-                updateVideoState("ready");
-              })
-              .catch((error) => {
-                console.error("Error playing video:", error);
-                toast.error("Error playing video");
-              });
+            videoRef.current.play().catch((error) => {
+              console.error("Error playing video:", error);
+              toast.error("Error playing video");
+            });
 
             updateVideo(videoRef.current);
           }
         })
         .catch((error) => {
           console.error("Error accessing webcam:", error);
+          toast.error("Unable to access webcam");
         });
     }
   }, []);
-
-  const measureVideo = () => {
-    if (videoContainerRef.current) {
-      const height = videoContainerRef.current?.clientHeight;
-      const width = videoContainerRef.current?.clientWidth;
-
-      if (height && width) {
-        console.info("video dimensions:", height, width);
-
-        return {
-          height,
-          width,
-        };
-      }
-    }
-  };
 
   return (
     <div

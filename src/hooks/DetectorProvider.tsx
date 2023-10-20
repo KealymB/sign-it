@@ -77,7 +77,7 @@ export function DetectorProvider({ children }: DetectorProviderProps) {
       {
         runtime: "tfjs",
         maxHands: 2,
-        modelType: "lite",
+        modelType: "full",
       },
     );
     updateModel(handPoseModel);
@@ -157,7 +157,7 @@ export function DetectorProvider({ children }: DetectorProviderProps) {
     } else {
       setIsLoading(false);
     }
-  }, [videoState, modelState, detectorState, isLoading]);
+  }, [detectorState, isLoading]);
 
   return (
     <DetectorContext.Provider
