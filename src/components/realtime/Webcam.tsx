@@ -71,7 +71,7 @@ const Webcam = () => {
       className="flex flex-1 overflow-hidden rounded-lg shadow-lg"
       ref={videoContainerRef}
     >
-      <video ref={videoRef} autoPlay playsInline height={450} width={500} />
+      <video ref={videoRef} autoPlay playsInline />
     </div>
   );
 };
