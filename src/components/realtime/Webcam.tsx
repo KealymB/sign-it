@@ -30,6 +30,9 @@ const Webcam = () => {
         width: videoRef.current.offsetWidth,
       });
 
+      videoRef.current.height = videoRef.current.offsetHeight;
+      videoRef.current.width = videoRef.current.offsetWidth;
+
       updateVideoState("ready");
     }
   };
